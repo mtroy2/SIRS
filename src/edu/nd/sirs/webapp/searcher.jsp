@@ -20,8 +20,7 @@
 	ResultSet rs = null;
 
 	Matching m = null;
-%>
-<%
+
 	switch (model) {
 	case "Boolean":
 		m = new Matching(new BooleanRM());
@@ -30,21 +29,21 @@
 		break;
 	}
 
+
 	StringBuffer json_r = new StringBuffer();
-	%><%
+
 	for (int i=0; i<rs.getResultSize(); i++) {
 		int docid = rs.getDocids()[i];
 		TextDocument doc = (TextDocument) DirectIndex.getInstance()
 				.getDoc(docid, TextDocument.class);
 		json_r.append("{\"title\":\"" + doc.getDocId()
-				+ "\",\"url\":\"" + doc.getName() + "\"}");
+				+ "\",\"url\":\"" + doc.getName().replaceFirst("crawl/", "") + "\"}");
 
 		if (i < (rs.getResultSize()-1)) {
 			json_r.append(",");
 		}
 	}
 	
-	%><%
 
 	String json = "{\"size\":" + rs.getResultSize() + ",\"time\":\""
 			+ (System.currentTimeMillis() - time) + "\",\"data\":["

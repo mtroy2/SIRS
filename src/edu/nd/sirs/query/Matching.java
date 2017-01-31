@@ -9,9 +9,10 @@ import edu.nd.sirs.index.DirectIndex;
 import edu.nd.sirs.index.InvertedIndex;
 import edu.nd.sirs.index.Lexicon;
 import edu.nd.sirs.index.Posting;
+import edu.nd.sirs.index.PostingList;
 import edu.nd.sirs.retrievalmodel.BooleanRM;
 import edu.nd.sirs.retrievalmodel.BooleanScoreModifier;
-import edu.nd.sirs.retrievalmodel.RetrievalModel;
+import edu.nd.sirs.retrievalmodel.IRetrievalModel;
 import edu.nd.sirs.retrievalmodel.ScoreModifier;
 
 /**
@@ -30,7 +31,7 @@ public class Matching {
 	private int numRetrievedDocs;
 	private InvertedIndex index;
 	private ResultSet resultSet;
-	private RetrievalModel scorer;
+	private IRetrievalModel scorer;
 
 	/**
 	 * Simple constructor.
@@ -38,7 +39,7 @@ public class Matching {
 	 * @param retrievalModel
 	 *            Retrieval model object to use to score documents.
 	 */
-	public Matching(RetrievalModel retrievalModel) {
+	public Matching(IRetrievalModel retrievalModel) {
 		scoreModifiers = new ArrayList<ScoreModifier>();
 		scorer = retrievalModel;
 		index = InvertedIndex.getInstance();
@@ -58,7 +59,7 @@ public class Matching {
 
 		final int queryLength = queryTermsToMatchList.size();
 		// The posting list iterator array (one per term) and initialization
-		List<List<Posting>> postingListArray = new ArrayList<List<Posting>>(
+		List<PostingList> postingListArray = new ArrayList<PostingList>(
 				queryLength);
 		for (String terms : queryTermsToMatchList.keySet()) {
 			int termId = queryTermsToMatchList.get(terms);
@@ -71,7 +72,7 @@ public class Matching {
 		boolean targetResultSetSizeReached = false;
 		final HashMap<Integer, Hit> accumulators = new HashMap<Integer, Hit>();
 
-		List<Posting> currentPostingList = null;
+		PostingList currentPostingList = null;
 
 		// while not end of all posting lists
 		for (int currentPostingListIndex = 0; currentPostingListIndex < postingListArray
@@ -82,16 +83,19 @@ public class Matching {
 					.size(); currentPosting++) {
 
 				int currentDocId = postingListArray
-						.get(currentPostingListIndex).get(currentPosting)
-						.getDocId();
+						.get(currentPostingListIndex).getPostings().get(currentPosting).getDocid();
 
 				// We create a new hit for each new doc id considered
-				Hit currentCandidate = accumulators.getOrDefault(currentDocId,
-						new Hit(currentDocId));
+				Hit currentCandidate = null;
+				if(accumulators.containsKey(currentDocId)){
+					currentCandidate = accumulators.get(currentDocId);
+				}else{
+					currentCandidate = new Hit(currentDocId);
+				}				
 				accumulators.put(currentDocId, currentCandidate);
 
 				assignScore(currentPostingListIndex, scorer, currentCandidate,
-						currentPostingList.get(currentPosting));
+						currentPostingList.getPostings().get(currentPosting), currentPostingList.getDocumentFrequency());
 			}
 
 			if ((!targetResultSetSizeReached)) {
@@ -173,12 +177,18 @@ public class Matching {
 	 * @param posting
 	 *            posting matching term form query
 	 */
-	private void assignScore(int i, final RetrievalModel wModels, Hit h,
-			final Posting posting) {
-		h.updateScore(wModels.score(posting));
+	private void assignScore(int i, final IRetrievalModel wModels, Hit h,
+			final Posting posting, final long df) {
+		h.updateScore(wModels.score(posting, df));
 		h.updateOccurrence((i < 16) ? (short) (1 << i) : 0);
 	}
 
+	/**
+	 * Simple testing main method
+	 * 
+	 * @param args
+	 *            none needed
+	 */
 	public static void main(String[] args) {
 		Matching m = new Matching(new BooleanRM());
 		m.addScoreModifier(new BooleanScoreModifier());

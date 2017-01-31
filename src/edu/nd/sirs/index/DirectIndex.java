@@ -74,6 +74,13 @@ public class DirectIndex {
 
 		return me;
 	}
+	
+	/**
+	 * @return number of documents in the index
+	 */
+	public int getNumDocs(){
+		return offsets.size();
+	}
 
 	/**
 	 * Retrieves the document from the direct index. Loads appropriate Document

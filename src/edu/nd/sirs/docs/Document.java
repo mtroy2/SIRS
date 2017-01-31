@@ -1,9 +1,13 @@
 package edu.nd.sirs.docs;
 
-import java.io.File;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.zip.ZipEntry;
 
 /**
  * Abstract class that represents a general Document.
@@ -25,7 +29,7 @@ public abstract class Document {
 	 * @param file
 	 *            File to parse
 	 */
-	public Document(Integer docId, File file) {
+	public Document(Integer docId, ZipEntry file) {
 		this.docId = docId;
 		this.name = file.getName();
 		this.numTokens = 0;
@@ -109,6 +113,23 @@ public abstract class Document {
 	 *            File to parse
 	 * @return Collection of Text Tokens
 	 */
-	public abstract List<String> parse(Integer docId, File file);
+	public abstract List<String> parse(Integer docId, InputStream fileInputStream);
+
+	protected String readFile(InputStream fileInputStream) {
+		StringBuffer contentBuffer = new StringBuffer();
+		try {
+			InputStreamReader stream = new InputStreamReader(fileInputStream);			
+			BufferedReader br = new BufferedReader(stream);
+			String line = "";
+
+			while ((line = br.readLine()) != null) {
+				contentBuffer.append(line).append("\n");
+			}
+			br.close();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		return contentBuffer.toString();
+	}
 
 }

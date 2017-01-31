@@ -1,79 +1,27 @@
 package edu.nd.sirs.index;
 
 /**
- * Postings class with termId, docID and frequency. Must implement Comparable
+ * Posting with a docid and a frequency
  * 
  * @author tweninge
  *
  */
-public class Posting implements Comparable<Posting> {
+public class Posting {
 
-	private long term;
-	private int doc;
-	private int frequency;
-
-	/**
-	 * Constructor from Indexer
-	 * 
-	 * @param termId
-	 *            Token/Term Id
-	 * @param docId
-	 *            Document Id
-	 * @param frequency
-	 *            Number of times the term appears in the document
-	 */
-	public Posting(long termId, int docId, int frequency) {
-		this.term = termId;
-		this.doc = docId;
+	int docid;
+	int frequency;
+	
+	public Posting(int doc, int frequency) {
+		this.docid = doc;
 		this.frequency = frequency;
 	}
 
-	/**
-	 * Constructor from index reader
-	 * 
-	 * @param line
-	 *            tab separated Posting
-	 */
-	public Posting(String line) {
-		String[] s = line.split("\t");
-		term = Long.parseLong(s[0]);
-		doc = Integer.parseInt(s[1]);
-		frequency = Integer.parseInt(s[2]);
-	}
-
-	public long getTermId() {
-		return term;
-	}
-
-	public int getDocId() {
-		return doc;
+	public int getDocid() {
+		return docid;
 	}
 
 	public int getFrequency() {
 		return frequency;
-	}
-
-	public void incrementFrequency() {
-		frequency++;
-	}
-
-	/**
-	 * Sorts by termId then documentId
-	 */
-	public int compareTo(Posting o) {
-		if (term < o.term) {
-			return -1;
-		} else if (term == o.term) {
-			if (doc < o.doc) {
-				return -1;
-			} else if (doc == o.doc) {
-				return 0;
-			} else {
-				return 1;
-			}
-		} else {
-			return 1;
-		}
 	}
 
 }

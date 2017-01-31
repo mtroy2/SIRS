@@ -72,6 +72,10 @@ public class CrawlerProcess {
 		 * which are found in these pages
 		 */
 		controller.addSeed(host);
+		
+		//we dont care about host prefix http://www.*
+		host = host.replaceFirst("http://", "");
+		host = host.replace("www.", "");
 
 		/*
 		 * Set the custom data for the crawler
@@ -89,7 +93,7 @@ public class CrawlerProcess {
 
 	private static final String TMP = "./data/crawl/tmp";
 	private static final String CRL = "./data/crawl";
-	private static final String URL = "http://cse.nd.edu/";
+	private static final String URL = "http://www.nd.edu/";
 	private static final Integer DPT = 4;
 
 	public static void main(String[] args) {

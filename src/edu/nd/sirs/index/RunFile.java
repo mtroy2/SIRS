@@ -18,7 +18,7 @@ public class RunFile {
 	long currentPos;
 	long length;
 
-	PriorityQueue<Posting> buffer;
+	PriorityQueue<DocumentTerm> buffer;
 
 	/**
 	 * Constructor
@@ -33,7 +33,7 @@ public class RunFile {
 		buffersize = bsize;
 		currentPos = 0;
 		getFileSize();
-		buffer = new PriorityQueue<Posting>(buffersize);
+		buffer = new PriorityQueue<DocumentTerm>(buffersize);
 	}
 
 	/**
@@ -53,7 +53,7 @@ public class RunFile {
 		boolean readsome = false;
 		RandomAccessFile raf = new RandomAccessFile(filename, "r");
 		raf.seek(currentPos);
-		Posting p;
+		DocumentTerm p;
 		int bufsize = buffer.size();
 
 		while ((currentPos < length) && (bufsize < buffersize)) {
@@ -75,7 +75,7 @@ public class RunFile {
 			}
 			int f = Integer.parseInt(sb.toString().trim());
 
-			p = new Posting(t, d, f);
+			p = new DocumentTerm(t, d, f);
 			buffer.add(p);
 
 			currentPos = raf.getFilePointer();
@@ -90,7 +90,7 @@ public class RunFile {
 	 * 
 	 * @return A Posting
 	 */
-	public Posting getRecord() {
+	public DocumentTerm getRecord() {
 		if (buffer.size() > 0) {
 			return buffer.poll();
 		} else {

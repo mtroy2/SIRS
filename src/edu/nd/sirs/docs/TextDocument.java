@@ -1,10 +1,8 @@
 package edu.nd.sirs.docs;
 
-import java.io.File;
-import java.io.FileReader;
-import java.io.IOException;
-import java.util.ArrayList;
+import java.io.InputStream;
 import java.util.List;
+import java.util.zip.ZipEntry;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -19,7 +17,7 @@ import edu.nd.sirs.parser.WhitespaceTextTokenizer;
  *
  */
 public class TextDocument extends Document {
-	
+
 	private static Logger logger = LoggerFactory.getLogger(TextDocument.class);
 
 	/**
@@ -30,7 +28,7 @@ public class TextDocument extends Document {
 	 * @param file
 	 *            File to parse
 	 */
-	public TextDocument(Integer docId, File file) {
+	public TextDocument(Integer docId, ZipEntry file) {
 		super(docId, file);
 	}
 
@@ -47,17 +45,9 @@ public class TextDocument extends Document {
 	}
 
 	@Override
-	public List<String> parse(Integer docId, File f) {
+	public List<String> parse(Integer docId, InputStream fileInputStream) {
 		ITokenizer tokenizer = new WhitespaceTextTokenizer();
-		List<String> toks = new ArrayList<String>();
-
-		try {
-			FileReader fr = new FileReader(f);
-			toks = tokenizer.tokenize(fr);
-			fr.close();
-		} catch (IOException e) {
-			logger.error("Error in parser", e);
-		}
+		List<String> toks = tokenizer.tokenize(this.readFile(fileInputStream));
 
 		numTokens = toks.size();
 

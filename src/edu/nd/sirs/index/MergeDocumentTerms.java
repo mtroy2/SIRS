@@ -1,6 +1,6 @@
 package edu.nd.sirs.index;
 
-import edu.nd.sirs.index.Posting;
+import edu.nd.sirs.index.DocumentTerm;
 
 /**
  * Just like a regular posting, except with a run identifier for merging.
@@ -8,7 +8,7 @@ import edu.nd.sirs.index.Posting;
  * @author tweninge
  *
  */
-public class MergePosting extends Posting {
+public class MergeDocumentTerms extends DocumentTerm {
 
 	int run;
 
@@ -16,11 +16,11 @@ public class MergePosting extends Posting {
 	 * Simple Constructor
 	 * 
 	 * @param p
-	 *            Posting
+	 *            DocumentTerm
 	 * @param r
 	 *            Run Id
 	 */
-	public MergePosting(Posting p, int r) {
+	public MergeDocumentTerms(DocumentTerm p, int r) {
 		super(p.getTermId(), p.getDocId(), p.getFrequency());
 		run = r;
 	}

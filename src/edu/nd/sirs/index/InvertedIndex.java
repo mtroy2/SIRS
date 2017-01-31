@@ -78,24 +78,23 @@ public class InvertedIndex {
 	 * @param termid
 	 * @return
 	 */
-	public List<Posting> getPostings(int termid) {
-		List<Posting> postings = new ArrayList<Posting>();
+	public PostingList getPostings(int termid) {		
 		long offset = offsets[termid];
 		try {
 			idx.seek(offset);
-			while (true) {
-				String line = idx.readLine();
-				if (line == null || line.isEmpty())
-					break;
-				Posting p = new Posting(line);
-				if (termid != p.getTermId())
-					break;
-				postings.add(p);
-			}
+
+			String line = idx.readLine();
+			if (line == null || line.isEmpty())
+				logger.error("Something wrong reading posting");
+			PostingList p = new PostingList(line);
+			if (termid != p.getTermId())
+				logger.error("Cannot read termid in postings list");
+			return p;
+
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-		return postings;
+		return null;
 	}
 
 	/**
@@ -106,7 +105,7 @@ public class InvertedIndex {
 	 */
 	public static void main(String[] args) {
 		InvertedIndex idx = InvertedIndex.getInstance();
-		List<Posting> x = idx.getPostings(100);
+		PostingList x = idx.getPostings(100);
 		System.out.println(x);
 	}
 
