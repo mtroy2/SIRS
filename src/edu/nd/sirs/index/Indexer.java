@@ -209,7 +209,7 @@ public class Indexer {
 	 */
 	private List<String[]> gammaEncoding(List<Integer[]> gaps) {
 		List<String[]> gammaArray = new ArrayList<String[]>();
-
+		
 		return gammaArray;
 	}
 
@@ -264,7 +264,7 @@ public class Indexer {
 	private String encodingListToString(List<String[]> vbe) {
 		String postings = "";
 		for (String[] pair : vbe) {
-			postings = postings + "(" + pair[0] + "," + pair[1] + ");";
+			postings = postings + pair[0]+pair[1];
 		}
 		return postings;
 	}
