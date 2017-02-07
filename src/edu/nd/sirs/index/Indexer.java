@@ -209,7 +209,7 @@ public class Indexer {
 	 */
 	private List<String[]> gammaEncoding(List<Integer[]> gaps) {
 		List<String[]> gammaArray = new ArrayList<String[]>();
-		
+
 		return gammaArray;
 	}
 
@@ -226,15 +226,16 @@ public class Indexer {
 	private List<Integer[]> createGapEncoding(String postings) {
 		List<Integer[]> postingsArray = postingsToList(postings);
 		List<Integer[]> gapsArray = new ArrayList<Integer[]>();
-		int gap = 0;
+		int old_docid = 0;
 		for (Integer[] post : postingsArray) {
 			Integer[] gapArray = new Integer[2];
 			int docid = post[0];
-			int cnt = post[1];
-			gap = docid - gap;
+			int cnt = post[1];			
+			int gap = docid - old_docid;
 			gapArray[0] = gap;
 			gapArray[1] = cnt;
 			gapsArray.add(gapArray);
+			old_docid = docid;
 		}
 		return gapsArray;
 	}
