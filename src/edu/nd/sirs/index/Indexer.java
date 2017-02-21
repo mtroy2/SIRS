@@ -4,6 +4,8 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.nio.ByteBuffer;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Enumeration;
@@ -20,7 +22,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import edu.nd.sirs.docs.Document;
-import edu.nd.sirs.docs.TextDocument;
+import edu.nd.sirs.docs.HTMLDocument;
 
 /**
  * Creates direct and inverted indexes for the documents stored in the folder.
@@ -87,7 +89,7 @@ public class Indexer {
 			while (enties.hasMoreElements()) {
 				ZipEntry file = enties.nextElement();
 				logger.info("Indexing document " + file.getName());
-				Document doc = new TextDocument(docId, file);
+				Document doc = new HTMLDocument(docId, file);
 				List<String> tokens = doc.parse(docId, zip.getInputStream(file));
 				index(tokens);
 				docWriterOffset.write(written + "\n");
@@ -209,7 +211,37 @@ public class Indexer {
 	 */
 	private List<String[]> gammaEncoding(List<Integer[]> gaps) {
 		List<String[]> gammaArray = new ArrayList<String[]>();
+		for (Integer[] pair : gaps) {
+			String[] newpair = new String[2];
+			int gap = pair[0];
+			String bin = Integer.toBinaryString(gap);
+			if (bin.contains("1")) {
+				if (bin.length() == 1) {
+					newpair[0] = "\0";
+					newpair[1] = Integer.toString(pair[1]);
+					gammaArray.add(newpair);
+					continue;
+				}
+				int location = bin.indexOf('1');
+				String offset = bin.substring(location + 1, bin.length());
+				int offset_len = offset.length();
+				String unarycode = StringUtils.leftPad("", offset_len, "1") + "0";
+				String gammacode = unarycode + offset;
+				//System.out.println(gammacode);
+				int c = Integer.parseInt(gammacode, 2);
+								
+				//System.out.println(c);
+				//System.out.println((char) c);
+							    
+				newpair[0] = Character.toString((char)c);			
+				newpair[1] = Integer.toString(pair[1]);
 
+			} else {
+				newpair[0] = "";
+				newpair[1] = Integer.toString(pair[1]);
+			}
+			gammaArray.add(newpair);
+		}
 		return gammaArray;
 	}
 
@@ -384,9 +416,6 @@ public class Indexer {
 	private void index(List<String> tokens) {
 		HashMap<Integer, DocumentTerm> lVoc = new HashMap<Integer, DocumentTerm>();
 		for (String token : tokens) {
-			if (token.equals("weninger")) {
-				System.out.println();
-			}
 			index(token, docId, lVoc);
 		}
 
@@ -479,7 +508,7 @@ public class Indexer {
 		}
 	}
 
-	private static final String CRL = "./data/crawl.zip";
+	private static final String CRL = "./data/small_test_subset_crawl.zip";
 
 	public static void main(String[] args) {
 		File crawl = null;

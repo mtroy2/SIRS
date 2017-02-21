@@ -1,5 +1,7 @@
 package edu.nd.sirs.retrievalmodel;
 
+import edu.nd.sirs.docs.HTMLDocument;
+import edu.nd.sirs.index.DirectIndex;
 import edu.nd.sirs.index.InvertedIndex;
 import edu.nd.sirs.query.Query;
 import edu.nd.sirs.query.ResultSet;
@@ -19,7 +21,11 @@ public class CosineScoreModifier implements ScoreModifier {
 			ResultSet resultSet) {
 		
 		//need to normalize based on document length
-		
+		float[] scores = resultSet.getScores();
+		for(int i=0; i< resultSet.getDocids().length; i++){
+			int docid = resultSet.getDocids()[i];
+			scores[i] /= (float)DirectIndex.getInstance().getDoc(docid, HTMLDocument.class).getNumTokens();
+		}
 		return true;
 	}
 

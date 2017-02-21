@@ -27,6 +27,11 @@
 		m.addScoreModifier(new BooleanScoreModifier());
 		rs = m.match(new Query(query));
 		break;
+	case "Cosine":
+		m = new Matching(new CosineRM());
+		m.addScoreModifier(new CosineScoreModifier());
+		rs = m.match(new Query(query));
+		break;
 	}
 
 
