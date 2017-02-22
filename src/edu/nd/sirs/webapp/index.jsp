@@ -20,27 +20,94 @@
 </head>
 <body>
 
-	<!-- Begin page content --> 
+	<!-- Begin page content -->
 	<div class="container">
 		<div class="page-header">
 			<h1>
-				<img src="ND_monogram_blue_S.png" /> Simple Information Retrieval System
+				<img src="ND_monogram_blue_S.png" /> Simple Information Retrieval
+				System
 			</h1>
 		</div>
 	</div>
 
+
 	<div class="container">
 		<form role="form">
+			<div class="control-group">
+				<h4>Field Weights</h4>
+				<div class="row">
+					<div class="col-sm-4 center-block">
+						Body Weight
+
+
+						<div id="bodywgt" class="btn-group" data-toggle="buttons">
+							<label class="btn btn-default btn-sm"> <input
+								type="radio">0
+							</label> <label class="btn btn-default btn-sm active"> <input
+								type="radio">1
+							</label> <label class="btn btn-default btn-sm"> <input
+								type="radio">2
+							</label> <label class="btn btn-default btn-sm"> <input
+								type="radio">5
+							</label> <label class="btn btn-default btn-sm"> <input
+								type="radio">10
+							</label> <label class="btn btn-default btn-sm"> <input
+								type="radio">50
+							</label>
+						</div>
+					</div>
+					<div class="col-sm-4 center-block">
+						Link Weight
+
+						<div id="linkwgt" class="btn-group" data-toggle="buttons">
+							<label class="btn btn-default btn-sm"> <input
+								type="radio">0
+							</label> <label class="btn btn-default btn-sm active"> <input
+								type="radio">1
+							</label> <label class="btn btn-default btn-sm"> <input
+								type="radio">2
+							</label> <label class="btn btn-default btn-sm"> <input
+								type="radio">5
+							</label> <label class="btn btn-default btn-sm"> <input
+								type="radio">10
+							</label> <label class="btn btn-default btn-sm"> <input
+								type="radio">50
+							</label>
+						</div>
+					</div>
+					<div class="col-sm-4 center-block">
+						Title Weight
+
+						<div id="titlewgt" class="btn-group" data-toggle="buttons">
+							<label class="btn btn-default btn-sm"> <input
+								type="radio">0
+							</label> <label class="btn btn-default btn-sm active"> <input
+								type="radio">1
+							</label> <label class="btn btn-default btn-sm"> <input
+								type="radio">2
+							</label> <label class="btn btn-default btn-sm"> <input
+								type="radio">5
+							</label> <label class="btn btn-default btn-sm"> <input
+								type="radio">10
+							</label> <label class="btn btn-default btn-sm"> <input
+								type="radio">50
+							</label>
+						</div>
+					</div>
+				</div>
+			</div>
+			<br>
+
 			<div class="form-group">
 				<div class="input-group">
+
 					<div class="input-group-btn">
 						<button id="model" type="button"
 							class="btn btn-primary dropdown-toggle" data-toggle="dropdown">
-							<span class="selection">Boolean</span>  
-							<span class="caret"></span>
+							<span class="selection">Cosine</span> <span class="caret"></span>
 						</button>
 						<ul class="dropdown-menu">
-							<li><a href="#">Boolean</a></li>							
+							<li><a href="#">Boolean</a></li>
 							<li><a href="#">Cosine</a></li>
 							<li><a href="#">Cosine + PageRank</a></li>
 							<li><a href="#">BM25</a></li>
@@ -49,11 +116,12 @@
 							<li><a href="#">PageRank</a></li>
 						</ul>
 					</div>
+
 					<!-- /btn-group -->
 					<input id="query" type="text" class="form-control"> <span
 						class="input-group-btn">
 						<button id="search" class="btn btn-primary" type="button">
-							<span class="glyphicon glyphicon-search"></span>
+							<span class="glyphicon glyphicon-search">Search</span>
 						</button>
 					</span>
 				</div>
@@ -65,13 +133,16 @@
 	<div class="container">
 		<p id="tmp"></p>
 	</div>
-	
+
 	<div id="stats_container" class="container">
 		<p></p>
 	</div>
 
-	<div id="result_container" class="container results-container">
+	<div id="eval_container" class="container">
+		<p></p>
 	</div>
+
+	<div id="result_container" class="container results-container"></div>
 
 	<div id="footer">
 		<div class="container">

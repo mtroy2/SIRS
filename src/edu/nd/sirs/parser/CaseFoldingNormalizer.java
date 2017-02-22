@@ -1,6 +1,5 @@
 package edu.nd.sirs.parser;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import org.slf4j.Logger;
@@ -16,15 +15,11 @@ public class CaseFoldingNormalizer implements INormalizer {
 
 	private static Logger logger = LoggerFactory.getLogger(CaseFoldingNormalizer.class);
 
-	/**
-	 * HW2, you'll need to change this code.
-	 */
 	public List<String> normalize(List<String> str) {
-		logger.info("Case Folding Normalizer...");
-		List<String> newS = new ArrayList<String>();
-		for (String s : str){
-			newS.add(s.toLowerCase());
+		//logger.info("Case Folding Normalizer...");
+		for(int i=0; i<str.size(); i++){
+			str.set(i, str.get(i).toLowerCase());
 		}
-		return newS;
+		return str;
 	}
 }

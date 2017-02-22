@@ -4,11 +4,11 @@ import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.RandomAccessFile;
-import java.util.ArrayList;
-import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import edu.nd.sirs.docs.Fields;
 
 /**
  * Inverted Index singleton class handles reading and writing to the inverted
@@ -35,10 +35,18 @@ public class InvertedIndex {
 			logger.info("Creating InvertedIndex singleton object.");
 			idx = new RandomAccessFile(IDX, "r");
 			loadOffsets();
+			
+			loadFields();
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
 
+	}
+
+	private void loadFields() throws IOException {
+		idx.seek(0);
+		String fieldString = idx.readLine();
+		Fields.loadFromInvertedIndex(fieldString);
 	}
 
 	/**
@@ -79,14 +87,15 @@ public class InvertedIndex {
 	 * @return
 	 */
 	public PostingList getPostings(int termid) {		
-		long offset = offsets[termid];
+		long offset = offsets[termid]; 
 		try {
 			idx.seek(offset);
-
+			long x = System.currentTimeMillis();
 			String line = idx.readLine();
 			if (line == null || line.isEmpty())
 				logger.error("Something wrong reading posting");
 			PostingList p = new PostingList(line);
+			System.out.println(System.currentTimeMillis() - x);
 			if (termid != p.getTermId())
 				logger.error("Cannot read termid in postings list");
 			return p;

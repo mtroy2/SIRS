@@ -1,5 +1,7 @@
 package edu.nd.sirs.index;
 
+import edu.nd.sirs.docs.Field;
+
 /**
  * Pair class with termId, docID and frequency. Must implement Comparable
  * 
@@ -11,6 +13,7 @@ public class DocumentTerm implements Comparable<DocumentTerm> {
 	private long term;
 	private int doc;
 	private int frequency;
+	private Field f;
 
 	/**
 	 * Constructor from Indexer
@@ -22,12 +25,12 @@ public class DocumentTerm implements Comparable<DocumentTerm> {
 	 * @param frequency
 	 *            Number of times the term appears in the document
 	 */
-	public DocumentTerm(long termId, int docId, int frequency) {
+	public DocumentTerm(long termId, int docId, int frequency, Field f) {
 		this.term = termId;
 		this.doc = docId;
 		this.frequency = frequency;
+		this.f = f;
 	}
-
 
 	public long getTermId() {
 		return term;
@@ -45,8 +48,17 @@ public class DocumentTerm implements Comparable<DocumentTerm> {
 		frequency++;
 	}
 
+	public Field getField() {
+		return f;
+	}
+	
+	@Override
+	public String toString(){
+		return f.field + ";" + term + ";" + doc;
+	}
+
 	/**
-	 * Sorts by termId then documentId
+	 * Sorts by termId then documentId then fieldid
 	 */
 	public int compareTo(DocumentTerm o) {
 		if (term < o.term) {

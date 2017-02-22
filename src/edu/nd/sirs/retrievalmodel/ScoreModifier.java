@@ -1,5 +1,6 @@
 package edu.nd.sirs.retrievalmodel;
 
+import edu.nd.sirs.docs.Field;
 import edu.nd.sirs.index.InvertedIndex;
 import edu.nd.sirs.query.ResultSet;
 import edu.nd.sirs.query.Query;
@@ -23,5 +24,5 @@ public interface ScoreModifier {
 	 * @return true if modified, false if not
 	 */
 	boolean modifyScores(InvertedIndex index, Query queryTerms,
-			ResultSet resultSet);
+			ResultSet resultSet, Field f);
 }

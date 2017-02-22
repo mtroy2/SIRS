@@ -1,5 +1,6 @@
 package edu.nd.sirs.retrievalmodel;
 
+import edu.nd.sirs.docs.Field;
 import edu.nd.sirs.index.InvertedIndex;
 import edu.nd.sirs.query.Query;
 import edu.nd.sirs.query.ResultSet;
@@ -16,7 +17,7 @@ public class BooleanScoreModifier implements ScoreModifier {
 	 * Intersection
 	 */
 	public boolean modifyScores(InvertedIndex index, Query query,
-			ResultSet resultSet) {
+			ResultSet resultSet, Field f) {
 		short[] occurrences = resultSet.getOccurrences();
 		float[] scores = resultSet.getScores();
 		int size = resultSet.getResultSize();

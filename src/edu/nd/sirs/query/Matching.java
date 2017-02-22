@@ -3,7 +3,11 @@ package edu.nd.sirs.query;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.TreeMap;
 
+import edu.nd.sirs.docs.Field;
+import edu.nd.sirs.docs.Fields;
 import edu.nd.sirs.docs.TextDocument;
 import edu.nd.sirs.index.DirectIndex;
 import edu.nd.sirs.index.InvertedIndex;
@@ -42,7 +46,7 @@ public class Matching {
 	public Matching(IRetrievalModel retrievalModel) {
 		scoreModifiers = new ArrayList<ScoreModifier>();
 		scorer = retrievalModel;
-		index = InvertedIndex.getInstance();
+		index = InvertedIndex.getInstance();		
 	}
 
 	/**
@@ -57,58 +61,99 @@ public class Matching {
 
 		numRetrievedDocs = 0;
 
+		final HashMap<Field, ResultSet> results = new HashMap<Field, ResultSet>();
+
 		final int queryLength = queryTermsToMatchList.size();
+
 		// The posting list iterator array (one per term) and initialization
 		List<PostingList> postingListArray = new ArrayList<PostingList>(
 				queryLength);
-		for (String terms : queryTermsToMatchList.keySet()) {
-			int termId = queryTermsToMatchList.get(terms);
+		for (String term : queryTermsToMatchList.keySet()) {
+			int termId = queryTermsToMatchList.get(term);
 
 			postingListArray.add(index.getPostings(termId));
 
 			// long docid = postingListArray(i).getId();
 			// postingHeap.enqueue((docid << 32) + i);
 		}
-		boolean targetResultSetSizeReached = false;
-		final HashMap<Integer, Hit> accumulators = new HashMap<Integer, Hit>();
 
-		PostingList currentPostingList = null;
+		for (Field f : Fields.getInstance().getFields()) {
 
-		// while not end of all posting lists
-		for (int currentPostingListIndex = 0; currentPostingListIndex < postingListArray
-				.size(); currentPostingListIndex++) {
+			final HashMap<Integer, Hit> accumulators = new HashMap<Integer, Hit>();
 
-			currentPostingList = postingListArray.get(currentPostingListIndex);
-			for (int currentPosting = 0; currentPosting < currentPostingList
-					.size(); currentPosting++) {
+			boolean targetResultSetSizeReached = false;
+			PostingList currentPostingList = null;
 
-				int currentDocId = postingListArray
-						.get(currentPostingListIndex).getPostings().get(currentPosting).getDocid();
+			// while not end of all posting lists
+			for (int currentPostingListIndex = 0; currentPostingListIndex < postingListArray
+					.size(); currentPostingListIndex++) {
 
-				// We create a new hit for each new doc id considered
-				Hit currentCandidate = null;
-				if(accumulators.containsKey(currentDocId)){
-					currentCandidate = accumulators.get(currentDocId);
-				}else{
-					currentCandidate = new Hit(currentDocId);
-				}				
-				accumulators.put(currentDocId, currentCandidate);
+				currentPostingList = postingListArray
+						.get(currentPostingListIndex);
+				for (int currentPosting = 0; currentPosting < currentPostingList
+						.size(f); currentPosting++) {
 
-				assignScore(currentPostingListIndex, scorer, currentCandidate,
-						currentPostingList.getPostings().get(currentPosting), currentPostingList.getDocumentFrequency());
+					int currentDocId = postingListArray
+							.get(currentPostingListIndex).getPostings(f)
+							.get(currentPosting).getDocid();
+
+					// We create a new hit for each new doc id considered
+					Hit currentCandidate = null;
+					if (accumulators.containsKey(currentDocId)) {
+						currentCandidate = accumulators.get(currentDocId);
+					} else {
+						currentCandidate = new Hit(currentDocId);
+					}
+					accumulators.put(currentDocId, currentCandidate);
+
+					assignScore(currentPostingListIndex, scorer,
+							currentCandidate, currentPostingList.getPostings(f)
+									.get(currentPosting),
+							currentPostingList.getDocumentFrequency(), f);
+				}
+
+				if ((!targetResultSetSizeReached)) {
+					if (accumulators.size() >= RETRIEVED_SET_SIZE) {
+						targetResultSetSizeReached = true;
+					}
+				}
 			}
 
-			if ((!targetResultSetSizeReached)) {
-				if (accumulators.size() >= RETRIEVED_SET_SIZE) {
-					targetResultSetSizeReached = true;
+			resultSet = new ResultSet(accumulators.values());
+			numRetrievedDocs = resultSet.getScores().length;
+			finalize(queryTerms, f);
+			results.put(f, resultSet);
+		}
+
+		Map<Integer, Hit> finalscores = new TreeMap<Integer, Hit>();
+		for (Field f : Fields.getInstance().getFields()) {
+			for (int i = 0; i < results.get(f).getDocids().length; i++) {
+
+				if (!finalscores.containsKey(results.get(f).getDocids()[i])) {
+					finalscores.put(results.get(f).getDocids()[i], new Hit(
+							results.get(f).getDocids()[i]));
 				}
+				float wghtdScore = results.get(f).getScores()[i]
+						* Fields.getInstance().getWeight(f);
+				finalscores.get(results.get(f).getDocids()[i]).updateScore(
+						wghtdScore);
+				finalscores.get(results.get(f).getDocids()[i])
+						.updateOccurrence((short) 1);
 			}
 		}
 
-		resultSet = new ResultSet(accumulators.values());
-		numRetrievedDocs = resultSet.getScores().length;
-		finalize(queryTerms);
-		return resultSet;
+		ResultSet rs = new ResultSet(finalscores.values());
+		numRetrievedDocs = finalscores.values().size();
+
+		int setSize = Math.min(RETRIEVED_SET_SIZE, numRetrievedDocs);
+		if (setSize == 0)
+			setSize = numRetrievedDocs;
+
+		rs.setExactResultSize(numRetrievedDocs);
+		rs.setResultSize(setSize);
+		rs.sort(setSize);
+
+		return rs;
 
 	}
 
@@ -147,9 +192,9 @@ public class Matching {
 	/**
 	 * Runs all of the score finalizers
 	 * 
-	 * @param queryTerms
+	 * @param queryTerm
 	 */
-	private void finalize(Query queryTerms) {
+	private void finalize(Query queryTerms, Field f) {
 		int setSize = Math.min(RETRIEVED_SET_SIZE, numRetrievedDocs);
 		if (setSize == 0)
 			setSize = numRetrievedDocs;
@@ -159,8 +204,8 @@ public class Matching {
 		resultSet.sort(setSize);
 
 		for (int t = 0; t < scoreModifiers.size(); t++) {
-			if (scoreModifiers.get(t)
-					.modifyScores(index, queryTerms, resultSet))
+			if (scoreModifiers.get(t).modifyScores(index, queryTerms,
+					resultSet, f))
 				resultSet.sort(resultSet.getResultSize());
 		}
 	}
@@ -178,7 +223,7 @@ public class Matching {
 	 *            posting matching term form query
 	 */
 	private void assignScore(int i, final IRetrievalModel wModels, Hit h,
-			final Posting posting, final long df) {
+			final Posting posting, final long df, final Field field) {
 		h.updateScore(wModels.score(posting, df));
 		h.updateOccurrence((i < 16) ? (short) (1 << i) : 0);
 	}

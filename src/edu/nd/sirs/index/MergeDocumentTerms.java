@@ -21,7 +21,7 @@ public class MergeDocumentTerms extends DocumentTerm {
 	 *            Run Id
 	 */
 	public MergeDocumentTerms(DocumentTerm p, int r) {
-		super(p.getTermId(), p.getDocId(), p.getFrequency());
+		super(p.getTermId(), p.getDocId(), p.getFrequency(), p.getField());
 		run = r;
 	}
 

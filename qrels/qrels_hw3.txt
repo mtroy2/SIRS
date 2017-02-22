@@ -1,0 +1,8 @@
+query: president jenkins
+12582 0
+8559 1
+query: graduate school
+2847 0
+2825 1
+query: computer science department
+11071 1

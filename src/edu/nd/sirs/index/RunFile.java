@@ -5,6 +5,8 @@ import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.util.PriorityQueue;
 
+import edu.nd.sirs.docs.Field;
+
 /**
  * RunFile class keep information about the current position of a cursor in a
  * run file.
@@ -70,12 +72,17 @@ public class RunFile {
 			}
 			long t = Long.parseLong(sb.toString());
 			sb = new StringBuffer();
+			while ((c = (char) raf.read()) != '\t') {
+				sb.append(c);
+			}
+			Field z = new Field(Integer.parseInt(sb.toString()));
+			sb = new StringBuffer();
 			while ((c = (char) raf.read()) != '\n') {
 				sb.append(c);
 			}
 			int f = Integer.parseInt(sb.toString().trim());
 
-			p = new DocumentTerm(t, d, f);
+			p = new DocumentTerm(t, d, f, z);
 			buffer.add(p);
 
 			currentPos = raf.getFilePointer();
